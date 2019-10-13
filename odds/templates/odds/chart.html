@@ -1,0 +1,54 @@
+{% extends "odds/bsae.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+  <div class="league">
+      <h2>{{ events.pl1 }} - {{ events.pl2 }}</h2>
+      <h3>{{ current_date }}</h3>
+      <p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="true" aria-controls="multiCollapseExample1 multiCollapseExample2" >Main Market</a>
+  <div class="col">
+    <div class="collapse multi-collapse" id="multiCollapseExample1" data-parent="#accordion">
+      <div class="card card-body">
+      </div>
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">cf1</th>
+      <th scope="col">cfX</th>
+      <th scope="col">cf2</th>
+      <th scope="col">Bmk</th>
+    </tr>
+  </thead>
+  <tbody>
+       {% for event in events_main_market_last %}
+        {% if event.date_update == current_date %}
+    <tr>
+      <td>{{event.cf1}}</td>
+      <td>{{event.cfX}}</td>
+      <td>{{event.cf2}}</td>
+      <td>{{event.bmk}}</td>
+    </tr>
+     {% endif %}
+     {% endfor %}
+   </tbody>
+</table>
+  </div>
+  <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample2" role="button" aria-expanded="false" aria-controls="multiCollapseExample2">Secondary market</a>
+</p>
+
+  
+       
+    </div>
+  </div>
+  <div class="col">
+    <div class="collapse multi-collapse" id="multiCollapseExample2" data-parent="#accordion">
+      <div class="card card-body">
+        Jcnfkmyst
+      </div>
+    </div>
+
+
+{% endblock %}
+     
+        

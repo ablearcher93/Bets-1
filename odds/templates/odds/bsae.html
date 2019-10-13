@@ -1,0 +1,71 @@
+{# templates/base.html #}
+{% load static %}
+<!DOCTYPE html>
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+   <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width, initialscale=1" />
+   <title>{% block title %}{% endblock %}{% trans "WiseBet"%}</title>
+   <link rel="icon" href="{{ STATIC_URL }}site/img/favicon.ico"type="image/png" />
+   
+   {% block meta_tags %}{% endblock %}
+   
+   {% block base_stylesheet %}
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+       <link href="{{ STATIC_URL }}site/css/style.css"rel="stylesheet" media="screen" type="text/css" />
+   {% endblock %}
+   
+   {% block stylesheet %}{% endblock %}
+   {% block base_js %}
+      <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+      <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      <script src="http://d3js.org/d3.v3.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" charset="utf-8"></script>
+      <script type="text/javascript" src="jquery.tipsy.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+   {% endblock %}
+   
+   {% block js %}{% endblock %}
+   {% block extrahead %}{% endblock %}
+   </head>
+   <body class="{% block bodyclass %}{% endblock %}">
+        {% block page %}
+             <section class="wrapper">
+                <header class="clearfix container">
+                    <h1>{% trans "WiseBet" %}</h1>
+                    {% block header_navigation %}
+                    <div class="dropdown show">
+  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+   Спорт
+  </a>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                 
+   <ul class="list-group">
+     {% for sport in sports %}
+     <li class="list-group-item d-flex justify-content-between align-items-center">
+       <a class="dropdown-item" href="{% url "Sports" sport.id %}">{{sport.title}}</a>
+             <span class="badge badge-primary badge-pill">{{sport.count}}</span>
+    </li>
+     {% endfor %}
+  </ul>
+</div>
+</div>
+                    {% endblock %}
+                    {% block language_chooser %}
+                    {% endblock %}
+                </header>
+                <div id="content" class="clearfix container">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+                <footer class="clearfix container">
+                     {% block footer_navigation %}
+                     {% endblock %}
+                </footer>
+                
+                
+
+{% endblock %}
+</html>

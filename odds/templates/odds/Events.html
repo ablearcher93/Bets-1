@@ -1,0 +1,351 @@
+{% extends "odds/bsae.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+
+  <div class="league">
+      <h2>{{ events.pl1 }} - {{ events.pl2 }}</h2>
+      <h3>{{event.date }}</h3>
+  </div>
+<div class="container-fluid">
+<nav class="navbar navbar-inverse">
+  
+   <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#multiCollapseExample1" aria-expanded="true" aria-controls="#multiCollapseExample1" id="btn1" >Main Market</button>
+    <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#multiCollapseExample2" id="btn2" >Sec market</button>
+  </div>
+
+  <script>
+  $('#btn1').click(function(){
+  $('#multiCollapseExample2').hide();
+  $('#multiCollapseExample1').show();
+});
+$('#btn2').click(function(){
+  $('#multiCollapseExample1').hide();
+  $('#multiCollapseExample2').show();
+}); 
+  </script>
+  
+
+    <div class="collapse" id="multiCollapseExample1">
+      <div class="col">
+    <table id="datatable" class="table">
+  <thead>
+    <tr>
+      <th scope="col">cf1</th>
+      <th scope="col">cfX</th>
+      <th scope="col">cf2</th>
+      <th scope="col">Bmk</th>
+    </tr>
+  </thead>
+  <tbody id="tbody">
+       {% for event in current_events %}
+    <tr>
+    <td id="cf1">{{ event.cf1}}</td> 
+    <td id="cfX">{{ event.cfX}}</td>
+    <td id="cf2">{{ event.cf2}}</td>
+    <td id="bmk">{{ event.bmk}}</td>     
+    </tr>
+    {% endfor %}
+   </tbody>
+</table>
+</div>
+      
+<p id="menu" class="menuchoice">Select series:</p>       
+
+
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" charset="utf-8"></script>
+
+
+<div id='container'></div>
+<div id='update'><h3>Last update at {{current_date }}</h3></div>
+</div>
+
+
+<script type='text/javascript'>
+var json = {{for_graphs|safe}}
+
+function MenuGen(json){
+coefs = Object.keys(json[0]).filter(function(a){
+return a!="bmk";
+}
+).filter(function(a){
+return a!="date_update";
+}
+)
+var menu = document.getElementById("menu");
+
+var selectList = document.createElement("select");
+selectList.setAttribute("id", "myselect");
+menu.appendChild(selectList);
+
+//Create and append the options
+for (var i = 0; i < coefs.length; i++) {
+    var option = document.createElement("option");
+    option.setAttribute("value", coefs[i]);
+    option.text = coefs[i];
+    selectList.appendChild(option);
+};
+}
+MenuGen(json)
+
+
+function generateTable(id, data) {  
+  var table = document.getElementById(id);
+  while (table.firstChild) {
+   table.removeChild(table.firstChild);
+  }
+  for (let element of data) {
+    let row = table.insertRow();
+    for (key in element) {
+      let cell = row.insertCell();
+      let text = document.createTextNode(element[key]);
+      cell.appendChild(text);
+    }
+  }
+}
+
+const cats = {}
+// Parse your data
+let data1 = json.sort((a, b) => a.bmk - b.bmk)
+	.reduce((acc, o) => {
+  	cats[o.date_update] = 1
+  	// Check if array already defined
+    return acc
+  }, {})
+
+// Convert categories object to array
+const categories = Object.keys(cats).map(function(d) {
+var j = new Date(d)
+//var options = {
+  //day: 'numeric',
+  //timezone: 'ru',
+  //hour: 'numeric',
+  //minute: 'numeric',
+  //second: 'numeric'
+//}
+//j=j.toLocaleString("ru", options)
+  return j;
+});
+
+
+
+
+
+function Split (k,json1)
+ {
+ var date=json1.map(function(d) {
+       var x={
+       bmk:d.bmk,
+       date_update:d.date_update,
+       c:d[k],};
+
+       return x;
+        });
+   return date;
+ }
+ 
+
+
+
+
+
+
+
+function Parse(coef, js)
+{
+json_for_parse=Split(coef,js)
+var cats=[]
+let data2 = json_for_parse.sort((a, b) => a.bmk - b.bmk)
+	.reduce((acc, o) => {
+  	cats[o.date_update] = 1
+  	if (acc[o.bmk]) {
+    acc[o.bmk].data.push([ Number(o.c)])
+    } else {
+    	// Create new array with first value
+    	acc[o.bmk] = { data: [ Number(o.c)] }
+    }
+    return acc
+  }, {})
+
+data2 = Object.keys(data2).map((key) => {
+	data2[key].name = key
+  return data2[key]
+})
+return data2;
+
+}
+
+$(function () {var chart=Highcharts.chart('container', {
+
+    title: {
+        text: ' '
+    },
+chart: {
+    zoomType: "x",
+events: {
+    load: function() {
+        // maintain a reference to the chart
+        var self = this;
+        setInterval(function() {
+           	$.ajax({
+   		type : 'GET',
+   		url:"{% url "current_info" events.id %}",
+   		success : function(response){
+   		var sk=response.current_info
+   		sk.map(function(d) {
+        d.cf1=Number(d.cf1)
+        d.cf2=Number(d.cf2)
+        d.cfX=Number(d.cfX)
+        d.date_update= new Date(d.date_update)
+       return d;
+        })
+  if ( self.xAxis[0].categories.some(date_update => (date_update-sk[0].date_update)==0)) {
+  
+
+                    
+            
+                    } else {
+                          json=json.concat(sk)
+                        self.xAxis[0].categories.push(sk[0].date_update)
+                        k=document.getElementById('myselect').value
+                        self.update({
+                        series:Parse(k, json)
+                        }, true);
+                        generateTable("tbody", response.current_info.map(function(d) {
+                        delete d.date_update;
+                        return d
+                    }))                    
+
+
+                    }
+   	}
+   }
+);
+        }, 5000);
+    }
+
+},
+},
+    subtitle: {
+            
+    },
+       xAxis: {
+        categories: categories
+        },
+    yAxis: {
+        title: {
+            text: 'Значение'
+        }
+    },
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    },
+
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+           
+        }
+    },
+    
+series: Parse(document.getElementById('myselect').value,json),
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+
+}, function (chart) {
+var select = document.getElementById('myselect');
+
+select.addEventListener('change', (e) => {
+            chart.update({
+                chart: {
+                 zoomType: "x",
+                    renderTo: "container"
+                },
+                yAxis: {
+                 title: {text: 'Значение'
+                 }
+    },
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    },
+
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+           
+        }
+    },
+    data: {
+            dataRefreshRate: 6
+        },
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    },
+                 xAxis: {
+                         categories: categories
+                             },
+                series: Parse(e.target.value,json),
+            });
+        });
+        
+    })});
+</script>   
+
+
+ 
+
+    <div class="collapse" id="multiCollapseExample2" data-parent="#accordion">
+       {{current_info}
+       <div id='update'><h3>Last update at {{current_date }}</h3></div>
+    </div>
+
+</nav>
+
+
+{% endblock %}
+     
+              <footer class="clearfix container">
+                     {% block footer_navigation %}
+                     
+                     {% endblock %}
+                     
+                </footer>    
+                
+                
+                
+
+    

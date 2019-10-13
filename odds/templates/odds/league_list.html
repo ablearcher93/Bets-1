@@ -1,0 +1,53 @@
+{% extends "odds/bsae.html" %}
+{% block title %}
+    {{ league.title }}
+{% endblock %}
+{% block content %}
+{% with sport=league.sport %}
+    <h1> {{ sport.title }}</h1>
+    <div class="events">
+       <ul id="leagues">
+         {% for m in sport.leagues.all %}
+            <li data-id="{{ m.id }}" {% if m == league %}
+             class="selected"{% endif %}>
+              <a href="{% url "league_content_list" m.id %}">
+                <span>
+                  League <span class="order">{}</span>
+                </span>
+                <br>
+                {{ m.title }}
+              </a>
+            </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="league">
+      <h2>{{ league.title }}</h2>
+      <h3>League events:</h3>
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Pl1</th>
+      <th scope="col">Pl2</th>
+      <th scope="col">Date</th>
+      <th scope="col">Подробности</th>
+    </tr>
+  </thead>
+  <tbody>
+       {% for event in events %}
+    <tr>
+      <td>{{event.pl1}}</td>
+      <td>{{event.pl2}}</td>
+      <td>{{event.date}}</td>
+      <td>
+      <a href="{% url "Events" event.id %}">Коэф</a>
+      </td>
+    </tr>
+     {% endfor %}
+  </tbody>
+</table>
+  </div>
+{% endwith %}
+{% endblock %}
+     
+        
