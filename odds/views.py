@@ -31,7 +31,7 @@ class EventContentView(TemplateResponseMixin, View):
         json_graphs=re.sub('{(\d){,5}, "fields": ','',json_graphs)
         #json_graphs=json_graphs.replace('{, "fields": ','')
         json_graphs=json_graphs.replace('}}','}')
-        print(json_graphs)
+        #print(json_graphs)
         x=json.loads(json_graphs)
  
         return self.render_to_response({'events_main_market_last': events_main_market,'current_events':events_main_market_current, 'event_main': Event_id,'events': events, 'sports': sports, 'current_date':g, 'for_graphs': x})
@@ -48,7 +48,7 @@ class AjaxInfo(TemplateResponseMixin, View):
 			"cf2": i.cf2,
 			"bmk": i.bmk,
 			"date_update": i.date_update})
-
+        #print(a)
         return JsonResponse({"current_info":a}, status=200)
     
 
